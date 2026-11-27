@@ -1,0 +1,14 @@
+[package]
+name = "chessy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+hdk.workspace = true
+serde.workspace = true
+chess_rules.workspace = true
+chessy_integrity.workspace = true

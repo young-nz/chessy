@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chessy — peer-to-peer chess for your own agent</title>
+    <meta
+      name="description"
+      content="Chessy is peer-to-peer chess on Holochain. Each player runs their own conductor and their own AI agent. API keys never leave the machine."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,680&family=Outfit:wght@380;560&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="mark">♞</div>
+      <strong>Chessy</strong>
+      <nav>
+        <a href="https://github.com/young-nz/chessy">Source</a>
+        <a href="https://github.com/young-nz/chessy/releases">Downloads</a>
+        <a href="https://github.com/young-nz/chessy/blob/main/docs/local-development.md">Setup</a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Holochain · bring your own agent</p>
+        <h1>A chess game with no server, and no shared API key.</h1>
+        <p class="lede">
+          Each player runs Chessy on their own machine. Moves are signed records.
+          Every peer checks that the move is legal before accepting it. Your model
+          — OpenAI, Anthropic, xAI Grok, Ollama, or any OpenAI-compatible endpoint —
+          is called only from your computer.
+        </p>
+        <div class="actions">
+          <a class="button" href="https://github.com/young-nz/chessy/releases">Get the desktop build</a>
+          <a class="button quiet" href="https://github.com/young-nz/chessy/blob/main/README.md">Read the architecture</a>
+        </div>
+        <p class="note">
+          Releases will list the <code>.happ</code>, the web bundle, and desktop builds as they are published.
+          This page does not run a conductor and does not ask for an API key.
+        </p>
+      </section>
+      <section class="grid">
+        <article>
+          <h2>Your conductor</h2>
+          <p>Holochain stores the game on the players' own machines. There is no central match server to trust or to take offline.</p>
+        </article>
+        <article>
+          <h2>Your agent</h2>
+          <p>The runner sends the position, the history, and the legal moves to the model you already pay for. A bad answer is retried, then a documented fallback move is played.</p>
+        </article>
+        <article>
+          <h2>Your key</h2>
+          <p>Keys live in a local config file or in the app's settings on that computer. They are not written into game records, and they are not collected here.</p>
+        </article>
+      </section>
+      <section class="steps">
+        <h2>Play</h2>
+        <ol>
+          <li>Install a desktop build from <a href="https://github.com/young-nz/chessy/releases">GitHub Releases</a>, or follow the <a href="https://github.com/young-nz/chessy/blob/main/docs/local-development.md">two-peer local guide</a>.</li>
+          <li>Create a nickname. Post or accept a challenge. Colors are assigned from the challenge.</li>
+          <li>Move yourself, or hand the seat to your agent. A second machine does the same with its own key.</li>
+        </ol>
+        <p>
+          Human versus human, human versus agent, and agent versus agent all use the same board.
+          Watching a game does not require you to move.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <p>Chessy is the home page. The game runs on the players' conductors, not on GitHub Pages.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  bundles:
+    name: Publish hApp and UI bundles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install hc 0.7.1
+        run: |
+          curl -fsSL -o /usr/local/bin/hc \
+            https://github.com/holochain/holochain/releases/download/holochain-0.7.1/hc-x86_64-unknown-linux-gnu
+          chmod +x /usr/local/bin/hc
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:ui
+      - run: scripts/build-happ.sh
+      - run: scripts/package-webhapp.sh
+      - name: Zip the UI
+        run: |
+          python3 scripts/make-icon.py
+          cp ui/public/icon.png ui/dist/icon.png
+          ( cd ui/dist && zip -qr "$GITHUB_WORKSPACE/chessy-ui.zip" . )
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dnas/chessy/workdir/chessy.happ
+            dnas/chessy/workdir/chessy.webhapp
+            chessy-ui.zip
+
+  desktop:
+    name: Linux Kangaroo build
+    runs-on: ubuntu-latest
+    needs: bundles
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the webhapp from this release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${GITHUB_REF_NAME}" --pattern chessy.webhapp --dir pouch-in
+      - name: Prepare Kangaroo
+        run: |
+          git clone --depth 1 https://github.com/holochain/kangaroo-electron.git kangaroo
+          mkdir -p kangaroo/pouch
+          cp pouch-in/chessy.webhapp kangaroo/pouch/chessy.webhapp
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("kangaroo/kangaroo.config.ts")
+          text = path.read_text()
+          text = text.replace("org.holochain.kangaroo-electron", "org.chessy.desktop")
+          text = text.replace("Holochain Kangaroo Electron", "Chessy")
+          path.write_text(text)
+          PY
+      - name: Build the Linux package
+        working-directory: kangaroo
+        run: |
+          corepack enable
+          yarn install --frozen-lockfile || yarn install
+          yarn fetch:binaries
+          yarn pouch:unpack
+          yarn create:icons
+          yarn build:linux
+      - name: Attach desktop packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          files=(kangaroo/dist/*.{AppImage,deb,rpm,zip})
+          if ((${#files[@]} == 0)); then
+            echo "Kangaroo did not produce a Linux package."
+            find kangaroo/dist -maxdepth 2 -type f | head
+            exit 1
+          fi
+          gh release upload "${GITHUB_REF_NAME}" "${files[@]}" --clobber

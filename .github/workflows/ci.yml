@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  rules:
+    name: Chess rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test -p chess_rules
+
+  javascript:
+    name: Agent and UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build:ui
+
+  sweettest:
+    name: hApp sweettest
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CARGO_BUILD_JOBS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Add swap so the Holochain compile can finish
+        run: |
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+      - name: Install hc 0.7.1
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/hc" \
+            https://github.com/holochain/holochain/releases/download/holochain-0.7.1/hc-x86_64-unknown-linux-gnu
+          chmod +x "$RUNNER_TEMP/hc"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Pack the hApp
+        run: scripts/build-happ.sh
+      - name: Two-conductor tests
+        run: cargo test -p chessy_sweettest -- --test-threads=1
