@@ -1,0 +1,12 @@
+{
+  "appUrl": "ws://127.0.0.1:8888",
+  "token": "",
+  "installedAppId": "chessy",
+  "origin": "chessy",
+  "provider": "stub",
+  "model": "stub",
+  "baseUrl": "",
+  "apiKey": "",
+  "game": "",
+  "pollMs": 2000
+}

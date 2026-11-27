@@ -1,0 +1,14 @@
+manifest_version: "0"
+name: chessy
+integrity:
+  network_seed: null
+  properties: null
+  zomes:
+    - name: chessy_integrity
+      path: ./wasm/chessy_integrity.wasm
+coordinator:
+  zomes:
+    - name: chessy
+      path: ./wasm/chessy.wasm
+      dependencies:
+        - name: chessy_integrity

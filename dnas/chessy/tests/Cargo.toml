@@ -1,0 +1,18 @@
+[package]
+name = "chessy_sweettest"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+holochain = { workspace = true, features = ["wasmer-sys-cranelift", "test_utils", "encryption"] }
+tokio.workspace = true
+serde.workspace = true
+chess_rules.workspace = true
+chessy_integrity.workspace = true
+chessy = { path = "../zomes/coordinator/chessy" }
+
+[[test]]
+name = "chessy"
+path = "tests/chessy.rs"

@@ -1,0 +1,20 @@
+{
+  "name": "chessy",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Peer-to-peer agentic chess on Holochain",
+  "workspaces": [
+    "packages/agent-core",
+    "packages/client",
+    "agent",
+    "ui"
+  ],
+  "scripts": {
+    "test": "npm test -w @chessy/agent-core && npm test -w @chessy/agent && npm test -w @chessy/ui",
+    "typecheck": "npm run typecheck -w @chessy/agent-core && npm run typecheck -w @chessy/client && npm run typecheck -w @chessy/agent && npm run typecheck -w @chessy/ui",
+    "build:ui": "npm run build -w @chessy/ui"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

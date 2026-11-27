@@ -1,0 +1,10 @@
+manifest_version: "0"
+name: chessy
+description: Peer-to-peer agentic chess. Each player runs their own conductor and their own agent.
+roles:
+  - name: chessy
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      path: ./chessy.dna
