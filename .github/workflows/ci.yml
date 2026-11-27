@@ -48,10 +48,19 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Add swap so the Holochain compile can finish
         run: |
-          sudo fallocate -l 8G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          if swapon --show | grep -q .; then
+            echo "Swap is already enabled."
+            swapon --show
+            exit 0
+          fi
+          if sudo fallocate -l 8G /swapfile_chessy \
+            && sudo chmod 600 /swapfile_chessy \
+            && sudo mkswap /swapfile_chessy \
+            && sudo swapon /swapfile_chessy; then
+            echo "Added 8G of swap."
+          else
+            echo "Could not add swap. Continuing with the runner's existing memory."
+          fi
       - name: Install hc 0.7.1
         run: |
           curl -fsSL -o "$RUNNER_TEMP/hc" \
